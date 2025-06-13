@@ -1,0 +1,14 @@
+export const MAX_CENTS = 100_000_000_000;
+export const TYPES = Object.freeze(['income', 'expense']);
+export const CATEGORIES = Object.freeze(['餐饮', '交通', '购物', '居住', '健康', '娱乐', '工资', '其他']);
+
+export function parseMoney(value) {
+  if (typeof value !== 'string' && typeof value !== 'number') throw new Error('请输入有效金额');
+  const text = String(value).trim();
+  if (!/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(text)) throw new Error('金额最多保留两位小数');
+  const [whole, fraction = ''] = text.split('.');
+  const cents = Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
+  if (!Number.isSafeInteger(cents) || cents > MAX_CENTS) throw new Error('金额超出允许范围');
+  return cents;
+}
+
