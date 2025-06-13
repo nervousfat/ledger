@@ -1,0 +1,16 @@
+{
+  "name": "demo-ledger",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "收支录入、分类统计、月度筛选与备份",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test core.test.js",
+    "check": "node --check core.js && node --check app.js && node --check server.mjs && node --check history.mjs",
+    "history": "node history.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
