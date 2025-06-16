@@ -12,3 +12,12 @@ export function parseMoney(value) {
   return cents;
 }
 
+export function formatMoney(cents) {
+  if (!Number.isSafeInteger(cents)) throw new Error('金额必须是整数分');
+  const absolute = Math.abs(cents);
+  const whole = Math.floor(absolute / 100).toLocaleString('zh-CN');
+  const fraction = String(absolute % 100).padStart(2, '0');
+  const sign = cents < 0 ? '-' : '';
+  return sign + '¥' + whole + '.' + fraction;
+}
+
