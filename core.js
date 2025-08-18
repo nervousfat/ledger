@@ -21,3 +21,12 @@ export function formatMoney(cents) {
   return sign + '¥' + whole + '.' + fraction;
 }
 
+export function normalizeText(value, maxLength, label = '文本') {
+  if (typeof value !== 'string') throw new Error(label + '必须是文本');
+  const text = value.trim();
+  if (text.length > maxLength) throw new Error(label + '长度不能超过 ' + maxLength + ' 个字符');
+  if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(text)) throw new Error(label + '包含无效字符');
+  if (label === '分类' && !text) throw new Error('请填写分类');
+  return text;
+}
+
