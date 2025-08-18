@@ -30,3 +30,14 @@ export function normalizeText(value, maxLength, label = '文本') {
   return text;
 }
 
+export function validateDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error('日期格式应为 YYYY-MM-DD');
+  const [year, month, day] = value.split('-').map(Number);
+  if (year < 1900 || year > 2100) throw new Error('日期年份应在 1900 到 2100 之间');
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+    throw new Error('日期不存在');
+  }
+  return value;
+}
+
