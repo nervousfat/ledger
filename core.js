@@ -41,3 +41,12 @@ export function validateDate(value) {
   return value;
 }
 
+export function createId() {
+  const native = globalThis.crypto?.randomUUID?.();
+  if (native) return native;
+  const bytes = new Uint8Array(16);
+  if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes);
+  else for (let i = 0; i < bytes.length; i += 1) bytes[i] = Math.floor(Math.random() * 256);
+  return Date.now().toString(36) + '-' + Array.from(bytes, (item) => item.toString(16).padStart(2, '0')).join('');
+}
+
