@@ -50,3 +50,15 @@ export function createId() {
   return Date.now().toString(36) + '-' + Array.from(bytes, (item) => item.toString(16).padStart(2, '0')).join('');
 }
 
+export function normalizeEntry(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('无效账目');
+  const id = normalizeText(input.id ?? createId(), 80, '标识');
+  if (!id || !/^[a-zA-Z0-9_-]+$/.test(id)) throw new Error('账目标识无效');
+  if (!TYPES.includes(input.type)) throw new Error('请选择收入或支出');
+  if (!Number.isSafeInteger(input.cents) || input.cents <= 0 || input.cents > MAX_CENTS) throw new Error('金额必须大于零且在范围内');
+  const category = normalizeText(input.category, 40, '分类');
+  const note = normalizeText(input.note ?? '', 300, '备注');
+  const date = validateDate(input.date);
+  return { id, type: input.type, cents: input.cents, category, note, date };
+}
+
