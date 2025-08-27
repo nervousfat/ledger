@@ -62,3 +62,13 @@ export function normalizeEntry(input) {
   return { id, type: input.type, cents: input.cents, category, note, date };
 }
 
+export function sortEntries(entries) {
+  if (!Array.isArray(entries)) throw new Error('账目应为数组');
+  const copy = entries.map(normalizeEntry);
+  copy.sort((left, right) => {
+    const dateOrder = right.date.localeCompare(left.date);
+    return dateOrder || left.id.localeCompare(right.id);
+  });
+  return copy;
+}
+
