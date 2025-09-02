@@ -81,3 +81,13 @@ export function addEntry(entries, input) {
   return sortEntries(updated);
 }
 
+export function removeEntry(entries, id) {
+  if (!Array.isArray(entries)) throw new Error('账目应为数组');
+  if (typeof id !== 'string' || !id) throw new Error('缺少账目标识');
+  const current = sortEntries(entries);
+  const index = current.findIndex((entry) => entry.id === id);
+  if (index === -1) throw new Error('账目不存在，可能已在其他窗口删除');
+  current.splice(index, 1);
+  return current;
+}
+
