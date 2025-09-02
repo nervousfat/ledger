@@ -72,3 +72,12 @@ export function sortEntries(entries) {
   return copy;
 }
 
+export function addEntry(entries, input) {
+  const entry = normalizeEntry(input);
+  if (!Array.isArray(entries)) throw new Error('账目应为数组');
+  if (entries.length >= 10000) throw new Error('最多保存 10000 条账目');
+  if (entries.some((item) => item.id === entry.id)) throw new Error('账目标识重复');
+  const updated = [...entries, entry];
+  return sortEntries(updated);
+}
+
