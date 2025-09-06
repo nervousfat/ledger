@@ -91,3 +91,13 @@ export function removeEntry(entries, id) {
   return current;
 }
 
+export function updateEntry(entries, id, changes) {
+  const current = sortEntries(entries);
+  const index = current.findIndex((entry) => entry.id === id);
+  if (index < 0) throw new Error('账目不存在，可能已在其他窗口删除');
+  if (!changes || typeof changes !== 'object') throw new Error('无效修改');
+  const updated = normalizeEntry({ ...current[index], ...changes, id });
+  current[index] = updated;
+  return sortEntries(current);
+}
+
