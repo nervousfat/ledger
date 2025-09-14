@@ -113,3 +113,14 @@ export function filterEntries(entries, filters = {}) {
   });
 }
 
+export function summarize(entries) {
+  let income = 0;
+  let expense = 0;
+  for (const entry of sortEntries(entries)) {
+    if (entry.type === 'income') income += entry.cents;
+    else expense += entry.cents;
+    if (!Number.isSafeInteger(income) || !Number.isSafeInteger(expense)) throw new Error('汇总金额超出精度范围');
+  }
+  return { income, expense, balance: income - expense, count: entries.length };
+}
+
