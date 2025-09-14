@@ -101,3 +101,15 @@ export function updateEntry(entries, id, changes) {
   return sortEntries(current);
 }
 
+export function filterEntries(entries, filters = {}) {
+  const { month = '', type = '', query = '' } = filters;
+  if (month && !/^\d{4}-(?:0[1-9]|1[0-2])$/.test(month)) throw new Error('无效月份');
+  if (type && !TYPES.includes(type)) throw new Error('无效收支类型');
+  const search = String(query).trim().toLocaleLowerCase();
+  return sortEntries(entries).filter((entry) => {
+    if (month && !entry.date.startsWith(month)) return false;
+    if (type && entry.type !== type) return false;
+    return !search || (entry.category + ' ' + entry.note).toLocaleLowerCase().includes(search);
+  });
+}
+
