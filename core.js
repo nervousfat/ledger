@@ -124,3 +124,15 @@ export function summarize(entries) {
   return { income, expense, balance: income - expense, count: entries.length };
 }
 
+export function summarizeCategories(entries, type = 'expense') {
+  if (!TYPES.includes(type)) throw new Error('无效收支类型');
+  const groups = new Map();
+  for (const entry of sortEntries(entries)) {
+    if (entry.type !== type) continue;
+    groups.set(entry.category, (groups.get(entry.category) ?? 0) + entry.cents);
+  }
+  const total = [...groups.values()].reduce((sum, value) => sum + value, 0);
+  return [...groups].map(([category, cents]) => ({ category, cents, share: total ? cents / total : 0 }))
+    .sort((left, right) => right.cents - left.cents || left.category.localeCompare(right.category));
+}
+
