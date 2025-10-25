@@ -136,3 +136,14 @@ export function summarizeCategories(entries, type = 'expense') {
     .sort((left, right) => right.cents - left.cents || left.category.localeCompare(right.category));
 }
 
+export function groupByMonth(entries) {
+  const groups = new Map();
+  for (const entry of sortEntries(entries)) {
+    const month = entry.date.slice(0, 7);
+    if (!groups.has(month)) groups.set(month, []);
+    groups.get(month).push(entry);
+  }
+  return [...groups].map(([month, values]) => ({ month, ...summarize(values) }))
+    .sort((left, right) => right.month.localeCompare(left.month));
+}
+
