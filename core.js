@@ -147,3 +147,16 @@ export function groupByMonth(entries) {
     .sort((left, right) => right.month.localeCompare(left.month));
 }
 
+export function exportCsv(entries) {
+  const protect = (value) => {
+    let text = String(value);
+    if (/^[\s]*[=+\-@\t\r]/.test(text)) text = "'" + text;
+    return '"' + text.replaceAll('"', '""') + '"';
+  };
+  const rows = [['日期', '类型', '分类', '金额（元）', '备注']];
+  for (const entry of sortEntries(entries)) {
+    rows.push([entry.date, entry.type === 'income' ? '收入' : '支出', entry.category, (entry.cents / 100).toFixed(2), entry.note]);
+  }
+  return '\ufeff' + rows.map((row) => row.map(protect).join(',')).join('\r\n');
+}
+
