@@ -170,3 +170,15 @@ export function exportBackup(entries, budgetCents = 0) {
   return JSON.stringify(backup, null, 2);
 }
 
+export function importBackup(text) {
+  if (typeof text !== 'string' || text.length > 5_000_000) throw new Error('备份文件无效或超过 5 MB');
+  let value;
+  try { value = JSON.parse(text); } catch { throw new Error('无法读取 JSON 备份'); }
+  if (!value || value.app !== 'pocket-ledger' || value.version !== 1) throw new Error('备份来源或版本不受支持');
+  if (!Array.isArray(value.entries)) throw new Error('备份缺少账目数组');
+  if (value.entries.some((entry) => !entry || typeof entry.id !== 'string' || !entry.id)) throw new Error('备份账目缺少标识');
+  const canonical = exportBackup(value.entries, value.budgetCents);
+  const valid = JSON.parse(canonical);
+  return { entries: valid.entries, budgetCents: valid.budgetCents };
+}
+
