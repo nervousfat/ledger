@@ -160,3 +160,13 @@ export function exportCsv(entries) {
   return '\ufeff' + rows.map((row) => row.map(protect).join(',')).join('\r\n');
 }
 
+export function exportBackup(entries, budgetCents = 0) {
+  if (!Number.isSafeInteger(budgetCents) || budgetCents < 0 || budgetCents > MAX_CENTS) throw new Error('预算无效');
+  const cleaned = sortEntries(entries);
+  if (cleaned.length > 10000) throw new Error('账目数量过多');
+  const ids = new Set(cleaned.map((entry) => entry.id));
+  if (ids.size !== cleaned.length) throw new Error('账目标识重复');
+  const backup = { app: 'pocket-ledger', version: 1, budgetCents, entries: cleaned };
+  return JSON.stringify(backup, null, 2);
+}
+
