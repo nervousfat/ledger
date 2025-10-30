@@ -1,4 +1,12 @@
 export const MAX_CENTS = 100_000_000_000;
+export const MAX_BACKUP_BYTES = 5_000_000;
+
+function assertBackupSize(text) {
+  if (typeof text !== 'string' || text.length > MAX_BACKUP_BYTES || new TextEncoder().encode(text).byteLength > MAX_BACKUP_BYTES) {
+    throw new Error('备份文件无效或超过 5 MB（UTF-8 字节）');
+  }
+}
+
 export const TYPES = Object.freeze(['income', 'expense']);
 export const CATEGORIES = Object.freeze(['餐饮', '交通', '购物', '居住', '健康', '娱乐', '工资', '其他']);
 
@@ -167,11 +175,13 @@ export function exportBackup(entries, budgetCents = 0) {
   const ids = new Set(cleaned.map((entry) => entry.id));
   if (ids.size !== cleaned.length) throw new Error('账目标识重复');
   const backup = { app: 'pocket-ledger', version: 1, budgetCents, entries: cleaned };
-  return JSON.stringify(backup, null, 2);
+  const text = JSON.stringify(backup, null, 2);
+  assertBackupSize(text);
+  return text;
 }
 
 export function importBackup(text) {
-  if (typeof text !== 'string' || text.length > 5_000_000) throw new Error('备份文件无效或超过 5 MB');
+  assertBackupSize(text);
   let value;
   try { value = JSON.parse(text); } catch { throw new Error('无法读取 JSON 备份'); }
   if (!value || value.app !== 'pocket-ledger' || value.version !== 1) throw new Error('备份来源或版本不受支持');
