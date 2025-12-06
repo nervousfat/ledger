@@ -192,3 +192,13 @@ export function importBackup(text) {
   return { entries: valid.entries, budgetCents: valid.budgetCents };
 }
 
+export function recoverStore(text) {
+  if (text === null || text === undefined || text === '') return { entries: [], budgetCents: 0, error: '' };
+  try {
+    const restored = importBackup(text);
+    return { ...restored, error: '' };
+  } catch (error) {
+    return { entries: [], budgetCents: 0, error: '本地数据无法读取，原始内容未被覆盖：' + error.message };
+  }
+}
+
