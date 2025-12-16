@@ -215,3 +215,12 @@ export function sampleEntries(month = new Date().toISOString().slice(0, 7)) {
   return rows.map(([type, category, cents, day, note]) => normalizeEntry({ id: createId(), type, category, cents, date: month + '-' + day, note }));
 }
 
+export function budgetStatus(entries, budgetCents, month) {
+  if (!Number.isSafeInteger(budgetCents) || budgetCents < 0 || budgetCents > MAX_CENTS) throw new Error('预算无效');
+  if (!month || !/^\d{4}-(?:0[1-9]|1[0-2])$/.test(month)) throw new Error('请选择预算月份');
+  const { expense } = summarize(filterEntries(entries, { month }));
+  const remaining = budgetCents - expense;
+  const ratio = budgetCents > 0 ? expense / budgetCents : 0;
+  const exceeded = budgetCents > 0 && remaining < 0;
+  return { budgetCents, expense, remaining, ratio, exceeded, configured: budgetCents > 0 };
+}
