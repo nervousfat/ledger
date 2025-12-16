@@ -202,3 +202,16 @@ export function recoverStore(text) {
   }
 }
 
+export function sampleEntries(month = new Date().toISOString().slice(0, 7)) {
+  validateDate(month + '-01');
+  const rows = [
+    ['income', '工资', 1250000, '01', '月度工资'],
+    ['expense', '居住', 280000, '02', '房租'],
+    ['expense', '餐饮', 3250, '03', '午餐'],
+    ['expense', '交通', 1800, '04', '地铁充值'],
+    ['expense', '购物', 12900, '05', '阅读灯'],
+    ['income', '其他', 85000, '06', '周末设计项目'],
+  ];
+  return rows.map(([type, category, cents, day, note]) => normalizeEntry({ id: createId(), type, category, cents, date: month + '-' + day, note }));
+}
+
