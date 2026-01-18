@@ -14,3 +14,13 @@ test('金额以整数分解析，避免浮点小数误差', () => {
   assert.equal(core.formatMoney(-1234), '-¥12.34');
 });
 
+test('金额拒绝不明确格式和超范围数值', () => {
+  const invalid = ['1.005', '-1', '1e3', '', '01', '1,000', 'Infinity', 'NaN', '1000000000.01'];
+  for (const value of invalid) assert.throws(() => core.parseMoney(value));
+  assert.throws(() => core.parseMoney(NaN));
+  assert.throws(() => core.parseMoney(Infinity));
+  assert.throws(() => core.parseMoney({}));
+  assert.throws(() => core.formatMoney(1.5));
+  assert.throws(() => core.normalizeEntry(entry({ cents: 0 })));
+});
+
