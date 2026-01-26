@@ -24,3 +24,13 @@ test('金额拒绝不明确格式和超范围数值', () => {
   assert.throws(() => core.normalizeEntry(entry({ cents: 0 })));
 });
 
+test('真实日历日期验证支持闰年', () => {
+  assert.equal(core.validateDate('2024-02-29'), '2024-02-29');
+  assert.equal(core.validateDate('2100-12-31'), '2100-12-31');
+  assert.throws(() => core.validateDate('2025-02-29'));
+  assert.throws(() => core.validateDate('2026-04-31'));
+  assert.throws(() => core.validateDate('2026-13-01'));
+  assert.throws(() => core.validateDate('2026-9-01'));
+  assert.throws(() => core.validateDate('1899-12-31'));
+});
+
