@@ -45,3 +45,14 @@ test('账目规范化限制文本与关键字段', () => {
   assert.throws(() => core.normalizeEntry(entry({ id: '<bad>' })));
 });
 
+test('新增账目保持不可变性并拒绝重复标识', () => {
+  const original = [entry()];
+  const added = core.addEntry(original, entry({ id: 'entry-two', date: '2026-09-11' }));
+  assert.equal(original.length, 1);
+  assert.equal(added.length, 2);
+  assert.equal(added[0].id, 'entry-two');
+  assert.notEqual(added[1], original[0]);
+  assert.throws(() => core.addEntry(original, entry()));
+  assert.match(core.createId(), /^[a-zA-Z0-9_-]+$/);
+});
+
