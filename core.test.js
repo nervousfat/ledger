@@ -34,3 +34,14 @@ test('真实日历日期验证支持闰年', () => {
   assert.throws(() => core.validateDate('1899-12-31'));
 });
 
+test('账目规范化限制文本与关键字段', () => {
+  const value = core.normalizeEntry(entry({ category: ' 餐饮 ', note: ' 午餐 ' }));
+  assert.equal(value.category, '餐饮');
+  assert.equal(value.note, '午餐');
+  assert.throws(() => core.normalizeEntry(entry({ type: 'other' })));
+  assert.throws(() => core.normalizeEntry(entry({ category: '' })));
+  assert.throws(() => core.normalizeEntry(entry({ note: 'x'.repeat(301) })));
+  assert.throws(() => core.normalizeEntry(entry({ cents: Infinity })));
+  assert.throws(() => core.normalizeEntry(entry({ id: '<bad>' })));
+});
+
