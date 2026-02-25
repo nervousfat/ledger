@@ -15,3 +15,7 @@ test('parseMoney rejects malformed amounts', () => {
   assert.throws(() => core.parseMoney('-5'), /金额最多保留两位小数/);
   assert.throws(() => core.parseMoney('1,234'), /金额最多保留两位小数/);
 });
+test('parseMoney enforces the safety ceiling', () => {
+  assert.equal(core.parseMoney('1000000000'), 100000000000);
+  assert.throws(() => core.parseMoney('9999999999'), /金额超出允许范围/);
+});
