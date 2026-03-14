@@ -67,3 +67,13 @@ test('编辑删除保留身份且错误不会改变原账目', () => {
   assert.throws(() => core.updateEntry(original, 'missing', { cents: 20 }));
 });
 
+test('月份类型关键词筛选可以组合', () => {
+  const rows = [entry({ note: 'Coffee' }), entry({ id: 'two', date: '2026-08-10' }), entry({ id: 'three', type: 'income' })];
+  assert.equal(core.filterEntries(rows, { month: '2026-09' }).length, 2);
+  assert.equal(core.filterEntries(rows, { type: 'income' }).length, 1);
+  assert.equal(core.filterEntries(rows, { month: '2026-09', query: 'coffee', type: 'expense' }).length, 1);
+  assert.equal(core.filterEntries(rows, { query: '不存在' }).length, 0);
+  assert.throws(() => core.filterEntries(rows, { month: '2026-13' }));
+  assert.throws(() => core.filterEntries(rows, { type: 'invalid' }));
+});
+
