@@ -56,3 +56,14 @@ test('新增账目保持不可变性并拒绝重复标识', () => {
   assert.match(core.createId(), /^[a-zA-Z0-9_-]+$/);
 });
 
+test('编辑删除保留身份且错误不会改变原账目', () => {
+  const original = [entry()];
+  const updated = core.updateEntry(original, 'entry-one', { id: 'ignored', cents: 500 });
+  assert.equal(updated[0].id, 'entry-one');
+  assert.equal(updated[0].cents, 500);
+  assert.equal(original[0].cents, 1234);
+  assert.deepEqual(core.removeEntry(updated, 'entry-one'), []);
+  assert.throws(() => core.removeEntry(original, 'missing'));
+  assert.throws(() => core.updateEntry(original, 'missing', { cents: 20 }));
+});
+
