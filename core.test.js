@@ -77,3 +77,13 @@ test('月份类型关键词筛选可以组合', () => {
   assert.throws(() => core.filterEntries(rows, { type: 'invalid' }));
 });
 
+test('收支汇总精确且空集合有零值', () => {
+  const rows = [entry({ cents: 10 }), entry({ id: 'two', cents: 20 }), entry({ id: 'three', type: 'income', cents: 100 })];
+  const totals = core.summarize(rows);
+  assert.equal(totals.expense, 30);
+  assert.equal(totals.income, 100);
+  assert.equal(totals.balance, 70);
+  assert.equal(totals.count, 3);
+  assert.deepEqual(core.summarize([]), { income: 0, expense: 0, balance: 0, count: 0 });
+});
+
