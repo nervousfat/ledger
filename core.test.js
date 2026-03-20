@@ -87,3 +87,14 @@ test('收支汇总精确且空集合有零值', () => {
   assert.deepEqual(core.summarize([]), { income: 0, expense: 0, balance: 0, count: 0 });
 });
 
+test('分类汇总与月度分组保持稳定次序', () => {
+  const rows = [entry({ cents: 100 }), entry({ id: 'two', category: '交通', cents: 300 }), entry({ id: 'three', type: 'income', date: '2026-08-10' })];
+  const categories = core.summarizeCategories(rows);
+  assert.equal(categories[0].category, '交通');
+  assert.equal(categories[0].share, 0.75);
+  assert.equal(categories[1].cents, 100);
+  assert.equal(core.groupByMonth(rows)[0].month, '2026-09');
+  assert.equal(core.groupByMonth(rows)[1].income, 1234);
+  assert.deepEqual(core.summarizeCategories([]), []);
+});
+
