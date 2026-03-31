@@ -98,3 +98,13 @@ test('分类汇总与月度分组保持稳定次序', () => {
   assert.deepEqual(core.summarizeCategories([]), []);
 });
 
+test('CSV引用逗号换行并使公式文本失活', () => {
+  const csv = core.exportCsv([entry({ category: '=SUM(A1)', note: 'hello,"world"\nline' })]);
+  assert.ok(csv.startsWith('\ufeff'));
+  assert.ok(csv.includes('"\'=SUM(A1)"'));
+  assert.ok(csv.includes('"hello,""world""\nline"'));
+  assert.ok(csv.includes('"12.34"'));
+  const dangerous = core.exportCsv([entry({ note: '@SUM(1)' })]);
+  assert.ok(dangerous.includes('"\'@SUM(1)"'));
+});
+
