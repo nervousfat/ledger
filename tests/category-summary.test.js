@@ -17,3 +17,8 @@ test('summarizeCategories ranks spend and splits shares', () => {
   assert.ok(Math.abs(ranked[0].share - 2 / 3) < 1e-9);
   assert.ok(Math.abs(ranked.reduce((sum, item) => sum + item.share, 0) - 1) < 1e-9);
 });
+test('summarizeCategories separates income and rejects unknown types', () => {
+  const entries = [entry({ id: 'a', type: 'income', cents: 5000, category: '工资' }), entry({ id: 'b', cents: 1200 })];
+  assert.deepEqual(core.summarizeCategories(entries, 'income').map(item => item.cents), [5000]);
+  assert.throws(() => core.summarizeCategories(entries, 'transfer'), /无效收支类型/);
+});
