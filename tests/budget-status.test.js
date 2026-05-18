@@ -15,3 +15,11 @@ test('budgetStatus flags overruns with exact ratios', () => {
   assert.equal(over.exceeded, true);
   assert.equal(over.remaining, -5000);
 });
+test('budgetStatus treats zero budgets as unconfigured', () => {
+  const status = core.budgetStatus([], 0, '2026-05');
+  assert.equal(status.configured, false);
+  assert.equal(status.ratio, 0);
+  assert.equal(status.exceeded, false);
+  assert.throws(() => core.budgetStatus([], 1000, '2026-5'), /请选择预算月份/);
+  assert.throws(() => core.budgetStatus([], -1, '2026-05'), /预算无效/);
+});
