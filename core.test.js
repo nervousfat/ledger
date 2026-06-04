@@ -108,3 +108,14 @@ test('CSV引用逗号换行并使公式文本失活', () => {
   assert.ok(dangerous.includes('"\'@SUM(1)"'));
 });
 
+test('JSON备份往返保留金额预算与Unicode文本', () => {
+  const rows = [entry({ note: '咖啡 ☕' })];
+  const backup = core.exportBackup(rows, 50000);
+  const restored = core.importBackup(backup);
+  assert.deepEqual(restored.entries, rows);
+  assert.equal(restored.budgetCents, 50000);
+  assert.equal(JSON.parse(backup).version, 1);
+  assert.equal(JSON.parse(backup).app, 'pocket-ledger');
+  assert.notEqual(restored.entries, rows);
+});
+
