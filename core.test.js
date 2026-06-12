@@ -119,3 +119,14 @@ test('JSON备份往返保留金额预算与Unicode文本', () => {
   assert.notEqual(restored.entries, rows);
 });
 
+test('导入拒绝损坏格式重复身份与非法金额', () => {
+  const backup = JSON.parse(core.exportBackup([entry()], 100));
+  assert.throws(() => core.importBackup('not json'));
+  assert.throws(() => core.importBackup(JSON.stringify({ ...backup, version: 2 })));
+  assert.throws(() => core.importBackup(JSON.stringify({ ...backup, entries: [entry(), entry()] })));
+  assert.throws(() => core.importBackup(JSON.stringify({ ...backup, entries: [entry({ id: undefined })] })));
+  assert.throws(() => core.importBackup(JSON.stringify({ ...backup, entries: [entry({ cents: 1.5 })] })));
+  assert.throws(() => core.importBackup(JSON.stringify({ ...backup, budgetCents: -1 })));
+  assert.throws(() => core.importBackup('x'.repeat(5_000_001)));
+});
+
