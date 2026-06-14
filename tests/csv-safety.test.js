@@ -11,3 +11,9 @@ test('exportCsv emits BOM, CRLF rows and quoted cells', () => {
   assert.ok(csv.includes('"含""引号""的备注"'));
   assert.equal(csv.split('\r\n').length, 2);
 });
+test('exportCsv defuses spreadsheet formula prefixes', () => {
+  const csv = core.exportCsv([entry({ id: 'a', note: '=SUM(A1)' })]);
+  assert.ok(csv.includes("'=SUM(A1)"));
+  const csv2 = core.exportCsv([entry({ id: 'b', note: '+cmd' })]);
+  assert.ok(csv2.includes("'+cmd"));
+});
