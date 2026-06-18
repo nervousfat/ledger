@@ -130,3 +130,14 @@ test('导入拒绝损坏格式重复身份与非法金额', () => {
   assert.throws(() => core.importBackup('x'.repeat(5_000_001)));
 });
 
+test('损坏本地数据给出恢复提示且正常空数据可用', () => {
+  const missing = core.recoverStore(null);
+  assert.deepEqual(missing.entries, []);
+  assert.equal(missing.error, '');
+  const damaged = core.recoverStore('{');
+  assert.deepEqual(damaged.entries, []);
+  assert.match(damaged.error, /未被覆盖/);
+  const valid = core.recoverStore(core.exportBackup([entry()], 123));
+  assert.equal(valid.budgetCents, 123);
+});
+
