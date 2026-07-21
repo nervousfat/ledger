@@ -141,3 +141,15 @@ test('损坏本地数据给出恢复提示且正常空数据可用', () => {
   assert.equal(valid.budgetCents, 123);
 });
 
+test('预算按整月支出计算并支持未设置与超额状态', () => {
+  const samples = core.sampleEntries('2026-09');
+  assert.equal(samples.length, 6);
+  assert.equal(new Set(samples.map((item) => item.id)).size, 6);
+  assert.ok(samples.every((item) => item.date.startsWith('2026-09')));
+  const result = core.budgetStatus([entry({ cents: 1234 })], 1000, '2026-09');
+  assert.equal(result.exceeded, true);
+  assert.equal(result.remaining, -234);
+  assert.equal(core.budgetStatus([], 0, '2026-09').configured, false);
+  assert.equal(core.budgetStatus([entry()], 1000, '2026-08').expense, 0);
+  assert.throws(() => core.budgetStatus([], Infinity, '2026-09'));
+});
