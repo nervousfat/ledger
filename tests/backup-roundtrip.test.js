@@ -10,3 +10,9 @@ test('exportBackup and importBackup preserve entries and budgets', () => {
   assert.deepEqual(restored.entries, core.sortEntries(entries));
   assert.equal(restored.budgetCents, 50000);
 });
+test('importBackup rejects foreign payloads and invalid budgets', () => {
+  const entries = () => [entry({ id: 'a' })];
+  assert.throws(() => core.importBackup('{"app":"other","version":1}'), /备份来源或版本不受支持/);
+  assert.throws(() => core.importBackup('oops'), /无法读取 JSON 备份/);
+  assert.throws(() => core.exportBackup(entries(), 5.5), /预算无效/);
+});
