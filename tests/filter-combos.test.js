@@ -15,3 +15,9 @@ test('filterEntries combines month type and query', () => {
   assert.deepEqual(core.filterEntries(entries, { month: '2026-07', type: 'expense' }).map(item => item.id), ['a', 'b']);
   assert.deepEqual(core.filterEntries(entries, { query: '午餐' }).map(item => item.id), ['a', 'd']);
 });
+test('filterEntries validates inputs and returns newest first', () => {
+  const entries = [entry({ id: 'a', date: '2026-07-01' }), entry({ id: 'b', date: '2026-07-31' })];
+  assert.deepEqual(core.filterEntries(entries).map(item => item.id), ['b', 'a']);
+  assert.throws(() => core.filterEntries(entries, { month: '2026-7' }), /无效月份/);
+  assert.throws(() => core.filterEntries(entries, { type: 'transfer' }), /无效收支类型/);
+});
