@@ -109,3 +109,26 @@ $('reset-filters').addEventListener('click', () => {
   $('filter-query').value = '';
   render();
 });
+
+function resetForm() {
+  $('entry-form').reset();
+  $('entry-id').value = '';
+  $('entry-date').value = today;
+  $('entry-category').value = '餐饮';
+  $('form-title').textContent = '记一笔';
+  $('save-entry').textContent = '保存账目';
+  $('cancel-edit').hidden = true;
+}
+
+$('entry-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  try {
+    const id = $('entry-id').value;
+    const changes = { type: $('entry-type').value, cents: core.parseMoney($('entry-amount').value), category: $('entry-category').value, date: $('entry-date').value, note: $('entry-note').value };
+    const next = id ? core.updateEntry(entries, id, changes) : core.addEntry(entries, changes);
+    if (!persist(next)) return;
+    resetForm();
+    notify((id ? '账目已更新。' : '账目已保存。') + (storageAvailable ? '' : ' 当前仅保留于内存，请下载备份。'));
+    $('entry-amount').focus();
+  } catch (error) { notify(error.message, true); }
+});
