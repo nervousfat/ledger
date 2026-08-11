@@ -132,3 +132,32 @@ $('entry-form').addEventListener('submit', (event) => {
     $('entry-amount').focus();
   } catch (error) { notify(error.message, true); }
 });
+
+$('entries').addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+  const entry = entries.find((item) => item.id === button.dataset.id);
+  if (!entry) { notify('该账目已不存在，请重新选择。', true); return; }
+  if (button.dataset.action === 'edit') {
+    $('entry-id').value = entry.id;
+    $('entry-type').value = entry.type;
+    $('entry-amount').value = (entry.cents / 100).toFixed(2);
+    $('entry-category').value = entry.category;
+    $('entry-date').value = entry.date;
+    $('entry-note').value = entry.note;
+    $('form-title').textContent = '编辑账目';
+    $('save-entry').textContent = '保存修改';
+    $('cancel-edit').hidden = false;
+    $('entry-amount').focus();
+    $('entry-form').scrollIntoView({ block: 'nearest' });
+    notify('正在编辑 ' + entry.date + ' 的' + entry.category + '账目。');
+  } else if (window.confirm('删除这笔 ' + core.formatMoney(entry.cents) + ' 的' + entry.category + '账目？')) {
+    try {
+      if (persist(core.removeEntry(entries, entry.id))) {
+        if ($('entry-id').value === entry.id) resetForm();
+        notify('账目已删除。');
+      }
+    } catch (error) { notify(error.message, true); }
+  }
+});
+$('cancel-edit').addEventListener('click', () => { resetForm(); notify('已取消编辑。'); });
