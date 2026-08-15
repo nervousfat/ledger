@@ -161,3 +161,46 @@ $('entries').addEventListener('click', (event) => {
   }
 });
 $('cancel-edit').addEventListener('click', () => { resetForm(); notify('已取消编辑。'); });
+
+function download(content, filename, type) {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+$('export-json').addEventListener('click', () => {
+  try {
+    const content = damagedStorage ? localStorage.getItem(STORAGE_KEY) : core.exportBackup(entries, budgetCents);
+    download(content ?? '', 'pocket-ledger-' + today + (damagedStorage ? '-recovery' : '') + '.json', 'application/json');
+    notify(damagedStorage ? '已下载损坏数据的原始副本，可据此手动恢复。' : 'JSON 备份已下载。');
+  } catch (error) { notify('备份失败：' + error.message, true); }
+});
+$('export-csv').addEventListener('click', () => {
+  download(core.exportCsv(filtered()), 'pocket-ledger-' + today + '.csv', 'text/csv;charset=utf-8');
+  notify('已导出当前筛选结果。');
+});
+$('import-button').addEventListener('click', () => $('import-file').click());
+$('import-file').addEventListener('change', async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  try {
+    if (file.size > 5_000_000) throw new Error('文件不能超过 5 MB');
+    const imported = core.importBackup(await file.text());
+    if (!window.confirm('备份含 ' + imported.entries.length + ' 笔账目，导入将替换当前全部账目和预算。继续吗？')) return;
+    if (persist(imported.entries, imported.budgetCents)) {
+      resetForm();
+      $('budget-amount').value = (budgetCents / 100).toFixed(2);
+      $('filter-month').value = '';
+      $('filter-type').value = '';
+      $('filter-query').value = '';
+      render();
+      notify('已完整导入 ' + entries.length + ' 笔账目。');
+    }
+  } catch (error) { notify('导入失败：' + error.message, true); }
+  finally { event.target.value = ''; }
+});
