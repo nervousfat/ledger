@@ -204,3 +204,28 @@ $('import-file').addEventListener('change', async (event) => {
   } catch (error) { notify('导入失败：' + error.message, true); }
   finally { event.target.value = ''; }
 });
+
+$('sample-button').addEventListener('click', () => {
+  if (sampleAdded && !window.confirm('本次已经添加过示例，再添加一组吗？')) return;
+  try {
+    const samples = core.sampleEntries($('filter-month').value || currentMonth);
+    let next = entries;
+    for (const entry of samples) next = core.addEntry(next, entry);
+    if (persist(next)) {
+      sampleAdded = true;
+      $('filter-type').value = '';
+      $('filter-query').value = '';
+      render();
+      notify('已添加 6 笔示例账目，可以随时编辑或删除。');
+    }
+  } catch (error) { notify(error.message, true); }
+});
+$('clear-button').addEventListener('click', () => {
+  if (!entries.length && !damagedStorage) { notify('账本已经是空的。'); return; }
+  if (!window.confirm('清空全部 ' + entries.length + ' 笔账目？此操作不可撤销，请先下载备份。')) return;
+  if (persist([])) {
+    resetForm();
+    sampleAdded = false;
+    notify('全部账目已清空，月度预算仍保留。');
+  }
+});
