@@ -229,3 +229,20 @@ $('clear-button').addEventListener('click', () => {
     notify('全部账目已清空，月度预算仍保留。');
   }
 });
+
+function renderBudget() {
+  const month = $('filter-month').value || currentMonth;
+  const budget = core.budgetStatus(entries, budgetCents, month);
+  $('budget-label').textContent = month + ' 预算剩余';
+  $('budget-total').textContent = budget.configured ? core.formatMoney(budget.remaining) : '未设置';
+  $('budget-progress').value = Math.min(100, budget.ratio * 100);
+  $('budget-progress').closest('.card').classList.toggle('over-budget', budget.exceeded);
+  $('budget-caption').textContent = budget.configured ? '已用 ' + Math.round(budget.ratio * 100) + '% · 预算 ' + core.formatMoney(budgetCents) : '设置每月支出预算';
+}
+$('budget-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  try {
+    const amount = core.parseMoney($('budget-amount').value);
+    if (persist(entries, amount)) notify(amount ? '每月支出预算已更新。' : '已取消月度预算。');
+  } catch (error) { notify(error.message, true); }
+});
