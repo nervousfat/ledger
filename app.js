@@ -246,3 +246,31 @@ $('budget-form').addEventListener('submit', (event) => {
     if (persist(entries, amount)) notify(amount ? '每月支出预算已更新。' : '已取消月度预算。');
   } catch (error) { notify(error.message, true); }
 });
+
+function refreshCategories() {
+  const categories = [...new Set([...core.CATEGORIES, ...entries.map((entry) => entry.category)])];
+  $('category-options').replaceChildren();
+  for (const category of categories) {
+    const option = document.createElement('option');
+    option.value = category;
+    $('category-options').append(option);
+  }
+}
+$('entry-type').addEventListener('change', () => {
+  if (!$('entry-id').value && core.CATEGORIES.includes($('entry-category').value)) {
+    $('entry-category').value = $('entry-type').value === 'income' ? '工资' : '餐饮';
+  }
+});
+window.addEventListener('storage', (event) => {
+  if (event.key !== STORAGE_KEY && event.key !== null) return;
+  load();
+  resetForm();
+  $('budget-amount').value = (budgetCents / 100).toFixed(2);
+  render();
+  if (!damagedStorage) notify('已同步其他窗口的账本变更。未保存的表单已重置。');
+});
+load();
+$('filter-month').value = currentMonth;
+$('budget-amount').value = budgetCents ? (budgetCents / 100).toFixed(2) : '';
+resetForm();
+render();
