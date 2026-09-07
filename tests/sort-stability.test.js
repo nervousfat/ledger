@@ -12,3 +12,12 @@ test('sortEntries orders by date descending then identifier', () => {
   ];
   assert.deepEqual(core.sortEntries(entries).map(item => item.id), ['c', 'a', 'b']);
 });
+test('updateEntry keeps identity while replacing fields', () => {
+  const entries = [entry({ id: 'a', cents: 100 })];
+  const updated = core.updateEntry(entries, 'a', { cents: 250, note: '加价' });
+  assert.equal(updated.length, 1);
+  assert.equal(updated[0].id, 'a');
+  assert.equal(updated[0].cents, 250);
+  assert.equal(updated[0].note, '加价');
+  assert.throws(() => core.updateEntry(entries, 'missing', { cents: 1 }), /账目不存在/);
+});
