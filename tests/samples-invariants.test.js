@@ -11,3 +11,9 @@ test('sampleEntries stays inside the requested month', () => {
   }
   assert.equal(entries.filter(item => item.type === 'income').length, 2);
 });
+test('sampleEntries totals reconcile with summarize', () => {
+  const totals = core.summarize(core.sampleEntries('2026-08'));
+  assert.equal(totals.income, 1335000);
+  assert.equal(totals.expense, 297950);
+  assert.equal(totals.balance, 1037050);
+});
